@@ -2,7 +2,6 @@ import requests
 import json
 from common import get_header
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
 import sqlite3
 import time
 import random
@@ -12,20 +11,11 @@ import toml
 import datetime
 
 # 初始化UserAgent对象
-ua = UserAgent()
-conn = None
+# sconn = None
 curs = None
 
 END = False
 no_answer = 0
-
-# 读取配置文件
-config_file_path = 'config.toml'
-number2 = 0
-with open(config_file_path, 'r') as f:
-    config = toml.load(f)
-    number2 = config.get("number2", 223)  # 提供一个默认值为0
-    print(f"The number is: {number2}")
 
 # 配置代理
 proxies = {
@@ -39,7 +29,7 @@ def func5(url):
     global no_answer
 
     try:
-        response = requests.get(url, headers=get_header(), proxies=proxies, timeout=10) #
+        response = requests.get(url, headers=get_header(), proxies=proxies, timeout=10)  #  
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -135,7 +125,7 @@ def func4():
     conn = sqlite3.connect('example.db')
     # 创建一个游标对象
     cur = conn.cursor()
-    cur.execute('SELECT * FROM my_table WHERE (read NOT IN (1, 3) OR read IS NULL) ORDER BY id;')
+    cur.execute('SELECT * FROM my_table2 WHERE (read NOT IN (1, 3) OR read IS NULL) ORDER BY id;')
 
     rows = cur.fetchall()
 
@@ -152,19 +142,16 @@ def func4():
             if success:
                 if json_data == {}:
                     if read == 2:
-                        cur.execute("UPDATE my_table SET read = 3 WHERE id = ?", (row_num,))
+                        cur.execute("UPDATE my_table2 SET read = 3 WHERE id = ?", (row_num,))
                     elif read != 3:
-                        cur.execute("UPDATE my_table SET read = 2 WHERE id = ?", (row_num,))
+                        cur.execute("UPDATE my_table2 SET read = 2 WHERE id = ?", (row_num,))
                 else:
                     json_output = json.dumps(json_data, ensure_ascii=False)
                     # Use parameter substitution (question marks) to safely insert values
-                    cur.execute("UPDATE my_table SET data = ?, read = 1 WHERE id = ?", (json_output, row_num))
+                    cur.execute("UPDATE my_table2 SET data = ?, read = 1 WHERE id = ?", (json_output, row_num))
 
                 # Commit the changes to the database
                 conn.commit()
-
-                with open(config_file_path, 'w') as f:
-                    toml.dump(config, f)
 
                 print(f"Current time2: {datetime.datetime.now()}")
                 break
@@ -174,15 +161,11 @@ def func4():
 
                 time.sleep(10)
 
-            if num > 3:
+            if num > 30:
                 return
 
-        random_sleep_time = random.randint(1, 3)
-        time.sleep(random_sleep_time)
-
-        if row_num > 30000:
-            print('test end')
-            return
+        # random_sleep_time = random.randint(0, 1)
+        # time.sleep(random_sleep_time)
 
     # 关闭数据库连接
     conn.close()
